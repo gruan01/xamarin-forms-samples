@@ -49,19 +49,26 @@ namespace Xamarin.Forms
 			return new SizeRequest (new Size (lastX, lastY));
 		}
 
-		protected override void LayoutChildren (double x, double y, double width, double height)
-		{
-			double lastX, lastY;
-			var layout = NaiveLayout (width, height, out lastX, out lastY);
+        protected override void LayoutChildren(double x, double y, double width, double height) {
+            double lastX, lastY;
+            var layout = NaiveLayout(width, height, out lastX, out lastY);
 
-			foreach (var t in layout) {
-				var offset = (int) ((width - t.Last ().Item2.Right) / 2);
-				foreach (var dingus in t) {
-					var location = new Rectangle(dingus.Item2.X + x + offset, dingus.Item2.Y + y, dingus.Item2.Width, dingus.Item2.Height);
-					LayoutChildIntoBoundingRegion (dingus.Item1, location);
-				}
-			}
-		}
+            foreach (var t in layout) {
+                int offset = 0;
+                if (this.HorizontalOptions.Alignment == LayoutAlignment.Center)
+                    offset = (int)((width - t.Last().Item2.Right) / 2);
+                else if (this.HorizontalOptions.Alignment == LayoutAlignment.Start || this.HorizontalOptions.Alignment == LayoutAlignment.Fill) {
+                    offset = 0;
+                } else if (this.HorizontalOptions.Alignment == LayoutAlignment.End) {
+                    offset = (int)(width - t.Last().Item2.Right);
+                }
+
+                foreach (var dingus in t) {
+                    var location = new Rectangle(dingus.Item2.X + x + offset, dingus.Item2.Y + y, dingus.Item2.Width, dingus.Item2.Height);
+                    LayoutChildIntoBoundingRegion(dingus.Item1, location);
+                }
+            }
+        }
 
 		private List<List<Tuple<View, Rectangle>>> NaiveLayout (double width, double height, out double lastX, out double lastY)
 		{
